@@ -17,7 +17,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Trae todo el historial y todas las ramas
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Fetch base branch
@@ -25,16 +25,20 @@ jobs:
           git fetch origin ${{ inputs.base_branch }} --depth=1
           git checkout ${{ inputs.head_branch }}  # Asegura que estamos en la rama correcta
 
-      - name: Get PR Changes
+      - name: Get PR Changes (Files & Content)
         id: changed_files
         run: |
           FILES=$(git diff --name-only origin/${{ inputs.base_branch }} ${{ inputs.head_branch }} | tr '\n' ', ')
+          DIFF=$(git diff --unified=0 origin/${{ inputs.base_branch }} ${{ inputs.head_branch }} | tail -c 30000)  # Limita tamaño
           echo "FILES=$FILES" >> $GITHUB_ENV
+          echo "DIFF<<EOF" >> $GITHUB_ENV
+          echo "$DIFF" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Generate Prompt
         id: generate_prompt
         run: |
-          echo "PROMPT=Analyze the following changes and generate a structured changelog: $FILES" >> $GITHUB_ENV
+          echo "PROMPT=Analyze the following changes and generate a structured changelog:\nFiles: $FILES\nDiff:\n$DIFF" >> $GITHUB_ENV
 
       - name: Output Prompt
         run: |
