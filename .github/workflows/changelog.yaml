@@ -1,0 +1,38 @@
+name: Generate Changelog
+
+on:
+  workflow_call:
+    inputs:
+      base_branch:
+        required: true
+        type: string
+      head_branch:
+        required: true
+        type: string
+    secrets:
+      GITHUB_TOKEN:
+        required: true
+
+jobs:
+  generate-prompt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.head_branch }}
+
+      - name: Get PR Changes
+        id: changed_files
+        run: |
+          git fetch origin ${{ inputs.base_branch }}
+          FILES=$(git diff --name-only origin/${{ inputs.base_branch }}...HEAD | tr '\n' ', ')
+          echo "FILES=$FILES" >> $GITHUB_ENV
+
+      - name: Generate Prompt
+        id: generate_prompt
+        run: |
+          echo "PROMPT=Analyze the following changes and generate a structured changelog: $FILES" >> $GITHUB_ENV
+
+      - name: Output Prompt
+        run: echo "Generated Prompt: ${{ env.PROMPT }}"
