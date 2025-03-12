@@ -14,15 +14,16 @@ jobs:
   generate-prompt:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Trae todo el historial y todas las ramas
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Fetch base branch
         run: |
-          git fetch origin ${{ inputs.base_branch }} --depth=1  # Asegura que tenemos la rama base
+          git fetch origin ${{ inputs.base_branch }} --depth=1
+          git checkout ${{ inputs.head_branch }}  # Asegura que estamos en la rama correcta
 
       - name: Get PR Changes
         id: changed_files
