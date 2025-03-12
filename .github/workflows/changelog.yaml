@@ -35,4 +35,5 @@ jobs:
           echo "PROMPT=Analyze the following changes and generate a structured changelog: $FILES" >> $GITHUB_ENV
 
       - name: Output Prompt
-        run: echo "Generated Prompt: ${{ env.PROMPT }}"
+        run: |
+          echo "Generated Prompt: ${{ env.PROMPT }}"
