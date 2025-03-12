@@ -17,14 +17,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.head_branch }}
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch base branch
+        run: |
+          git fetch origin ${{ inputs.base_branch }} --depth=1  # Asegura que tenemos la rama base
 
       - name: Get PR Changes
         id: changed_files
         run: |
-          git fetch origin ${{ inputs.base_branch }}
-          FILES=$(git diff --name-only origin/${{ inputs.base_branch }}...HEAD | tr '\n' ', ')
+          FILES=$(git diff --name-only origin/${{ inputs.base_branch }} ${{ inputs.head_branch }} | tr '\n' ', ')
           echo "FILES=$FILES" >> $GITHUB_ENV
 
       - name: Generate Prompt
